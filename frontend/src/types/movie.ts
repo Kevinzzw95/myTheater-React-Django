@@ -1,7 +1,7 @@
 export interface movieCommon {
     adult: boolean,
 		backdrop_path: string,
-		genre_ids: string[],
+		genre_ids: number[],
 		id: number,
 		media_type: string,
 		original_language: string,
@@ -19,4 +19,19 @@ export interface movieCommon {
 export interface movieGenre {
     id: number,
     name: string,
+}
+
+export interface actor {
+	adult: boolean,
+	gender: number,
+	id: number,
+	known_for_department: string,
+	name: string,
+	original_name: string,
+	popularity: null,
+	profile_path: string,
+	cast_id: number,
+	character: string,
+	credit_id: string,
+	order: number,
 }

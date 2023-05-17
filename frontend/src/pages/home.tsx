@@ -10,7 +10,6 @@ import { GenreContext } from "../context/genre.context";
 import classnames from 'classnames';
 import axios from "axios";
 import url from "../config/url";
-import API_KEY from "../config/api";
 
 interface MovieListProps {
   page: number,
