@@ -16,13 +16,14 @@ interface GenreListProps {
 
 const GenreProvider = ({children} : Props) => {
     const[ genres, setGenres ] = useState<movieGenre[]>([]);
-    const genreUrl = url.base_url + url.genre_list_url;
+    const genreUrl = url.base_url + url.genre_list_url + `api_key=${API_KEY}`;
     useEffect(() => {
         axios.get<GenreListProps>(genreUrl).then(
           res => {
             setGenres(res.data.genres);
           },
           err => {
+						setGenres([]);
             console.log(err);
           }
         )

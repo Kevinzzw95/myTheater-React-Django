@@ -1,64 +1,59 @@
-import { Fragment, useState } from "react";
-import Navigation from "../components/navigation/navigation.component";
-import { Outlet } from "react-router-dom";
-import MovieCard from "../components/movie-card/movie-card.component";
-import { useSelector, useDispatch } from "react-redux";
-import { AppDispatch, RootState } from "../redux/store/store";
+import { useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useContext } from "react";
-import { movieCommon, movieGenre } from "../types/movie";
+import { movieGenre } from "../types/movie";
 import { GenreContext } from "../context/genre.context";
 import classnames from 'classnames';
-import axios from "axios";
-import url from "../config/url";
-
-interface MovieListProps {
-  page: number,
-  results: movieCommon[]
-}
+import { useDispatch, useSelector } from "react-redux";
+import { getFavList, getWatchedList, setMovieList } from "../redux/user/userSlice";
 
 const Home = () => {
-  const [ curGenre, setCurGenre ] = useState<movieGenre>({id: -1, name: "Trending"});
-  const [ movieList, setMovieList ] = useState<movieCommon[]>([]);
-  const { genres } = useContext(GenreContext);
-  const dispatch: AppDispatch = useDispatch();
-  const trending_url = url.base_url + url.trending_url;
+	const [ curGenre, setCurGenre ] = useState<movieGenre>({id: null, name: "Trending"});
+	const { genres } = useContext(GenreContext);
+	const navigate = useNavigate();
+	const dispatch = useDispatch();
 
-  useEffect(() => {
-    axios.get<MovieListProps>
-    (curGenre.name === "Trending" ? trending_url : url.base_url + url.findby_genre_list + `${curGenre.id}`)
-    .then(
-      res => {
-        setMovieList(res.data.results)
-      },
-      err => {
-        console.log(err)
-      }
-    )
-  }, [curGenre]);
+	const fav = useSelector(getFavList);
+	const watched = useSelector(getWatchedList);
+	const data = {fav, watched};
 
-  return (
-    <section className="p-8">
-      <div className="tab tabs-boxed space-x-4 space-y-4 bg-transparent flex h-[20%]">
-        <div className="space-x-2 space-y-4">
-          <a onClick={() => setCurGenre({id: -1, name: "Trending"})} className={classnames("tab text-lg", curGenre.name === "Trending" ? "tab-active" : "")}>Trending</a>
-          { genres.map((genre) => 
-            <a key={genre.id} onClick={() => setCurGenre({id: genre.id, name: genre.name})} className={classnames("tab text-lg", curGenre.name === genre.name ? "tab-active" : "")}>{ genre.name }</a>
-          ) }
-        </div>
-        
-      </div>
-      
-        <div className="m-10 sm:grid md:grid-cols-4 xl:grid-cols-4 3xl:grid-cols-5 gap-8">
-          {movieList == null ? null : movieList.map((movie) =>
-            <div key={movie.id} className="self-start">
-              <MovieCard movie={ movie }/>
-            </div>
-          )}
-          
-        </div>
-      
-    </section>
-  );
-};
+	useEffect(() => {
+		dispatch(setMovieList(data));
+	}, [])
+	
+
+	useEffect(() => {
+		if(curGenre.id === null) {
+			navigate(`/trending`);
+		} else {
+			navigate(`/${curGenre.id}`);
+		}
+		
+	}, [curGenre])
+
+	const switchGenre = (genre: movieGenre) => {
+		setCurGenre({id: genre.id, name: genre.name});
+	}
+
+	return (
+		<section className="p-8">
+			<div className="tab tabs-boxed space-x-4 space-y-4 bg-transparent flex h-[20%]">
+				{genres && (
+				<div className="space-x-2 space-y-4">
+					<a onClick={() => setCurGenre({id: null, name: "Trending"})} className={classnames("tab text-lg", curGenre.name === "Trending" ? "tab-active" : "")}>Trending</a>
+					{ genres.map((genre, index) => 
+					<a key={index} onClick={ () => switchGenre(genre) } className={classnames("tab text-lg", curGenre.name === genre.name ? "tab-active" : "")}>{ genre.name }</a>
+					) }
+				</div>
+				)}
+			</div>
+			<div className="m-10 sm:grid md:grid-cols-4 xl:grid-cols-4 gap-8">
+				<Outlet />
+			</div>
+			
+		</section>
+		
+	);
+}
 
 export default Home;

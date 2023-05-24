@@ -9,7 +9,7 @@ export interface movieCommon {
 		overview: string,
 		popularity: number,
 		poster_path: string,
-		release_date: Date,
+		release_date: string,
 		title: string,
 		video: boolean,
 		vote_average: number,
@@ -17,7 +17,7 @@ export interface movieCommon {
 }
 
 export interface movieGenre {
-    id: number,
+    id: number | null,
     name: string,
 }
 
@@ -28,10 +28,15 @@ export interface actor {
 	known_for_department: string,
 	name: string,
 	original_name: string,
-	popularity: null,
+	popularity: number,
 	profile_path: string,
 	cast_id: number,
 	character: string,
 	credit_id: string,
 	order: number,
+}
+
+export interface movieRes {
+    results: movieCommon[];
+    total_pages: number;
 }
