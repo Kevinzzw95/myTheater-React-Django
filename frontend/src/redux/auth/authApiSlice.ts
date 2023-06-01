@@ -1,14 +1,14 @@
-import { postAuth } from "../../types/user";
+import { loginRes, postAuth } from "../../types/user";
 import { apiSlice } from "../api/apiSlice";
 
 export const authApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
-        login: builder.mutation<void, postAuth>({
+        login: builder.mutation<loginRes, postAuth>({
 			query: credentials => ({
-				url: '/auth',
+				url: '/login/',
 				method: 'POST',
 				body: {...credentials}
-			}) 
+			})
         })
         
     })

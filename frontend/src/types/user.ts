@@ -1,23 +1,25 @@
 import { movieCommon } from "./movie";
 
-export interface user {
-    id: number;
-    name: string;
-    fav: number[];
-    watched: number[];
-}
 
-interface Post {
-    user: user;
-    token: string;
+
+export interface loginRes {
+    refresh: string;
+    access: string;
 }
 
 export interface userSliceState {
-    fav: movieCommon[];
-    watched: movieCommon[];
+    username: string;
+    email: string;
+    fav_list: number[];
+    watched_list: number[];
+}
+
+export interface postMovie {
+    fav_list: number[];
+    watched_list: number[];
 }
 
 export interface postAuth {
-	user: string;
-	pwd: string;
+	username: string;
+	password: string;
 }

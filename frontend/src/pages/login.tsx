@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../redux/auth/authSlice";
 import { useLoginMutation } from "../redux/auth/authApiSlice";
+import { useGetUserDataQuery } from "../redux/user/userApiSlice";
+import { setUserInfo } from "../redux/user/userSlice";
 
 const Login = () => {
     const userRef = useRef<HTMLInputElement>(null);
@@ -26,12 +28,14 @@ const Login = () => {
         e.preventDefault();
 
         try {
-            //const userData = await login({ user, pwd }).unwrap();
-            const authData = {token: "123"}
-            dispatch(setCredentials({ ...authData, user }));
+            const userData = await login({ username: user, password: pwd }).unwrap();
+            const token = userData.access
+            const refresh = userData.refresh
+            dispatch(setCredentials({ token: token, refresh: refresh, user }));
             setUser('');
             setPwd('');
-            navigate('/trending');
+            navigate('/');
+
         } catch (err) {
             console.log(err);
             errRef.current?.focus();

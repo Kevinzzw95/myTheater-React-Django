@@ -1,27 +1,27 @@
-import { Fragment, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
-import MovieCard from "../components/movie-card/movie-card.component";
+import MovieCard from "../movie-card/movie-card.component";
 import { useEffect } from "react";
-import { movieCommon, movieRes } from "../types/movie";
+import { movieCommon, movieGenreRes } from "../../types/movie";
 import axios from "axios";
-import url from "../config/url";
+import url from "../../config/url";
+import { GenreContext } from "../../context/genre.context";
 
 const Genre = () => {
-    const [ curGenreId, setCurGenreId ] = useState<string>("");
+    const { curGenre } = useContext(GenreContext);
+    const [ curGenreId, setCurGenreId ] = useState<number | null>(null);
     const [ movieList, setMovieList ] = useState<movieCommon[]>([]);
-    const params = useParams();
     const [ curPage, setCurPage ] = useState<number>(1);
     const [ totalPages, setTotalPages ] = useState<number>(0);
     const trending_url = url.base_url + url.trending_url;
 
     useEffect(() => {
-        const curId: string = params.genre!;
-        if(curId != curGenreId) {
+        if(curGenre.id != curGenreId) {
             setCurPage(1);
-            setCurGenreId(curId);
+            setCurGenreId(curGenre.id);
         }
-        axios.get<movieRes>
-        (curId === "trending" ? trending_url + `&page=${curPage}`: url.base_url + url.findby_genre_list +`${curId}` + `&page=${curPage}`)
+        axios.get<movieGenreRes>
+        (curGenre.id === null ? trending_url + `&page=${curPage}`: url.base_url + url.findby_genre_list +`${curGenre.id}` + `&page=1`)
             .then(
             res => {
                 setMovieList(res.data.results);
@@ -31,7 +31,21 @@ const Genre = () => {
                 console.log(err);
             }
         )
-    }, [params, curPage]);
+    }, [curGenre]);
+
+    useEffect(() => {
+        axios.get<movieGenreRes>
+        (curGenre.id === null ? trending_url + `&page=${curPage}`: url.base_url + url.findby_genre_list +`${curGenre.id}` + `&page=${curPage}`)
+            .then(
+            res => {
+                setMovieList(res.data.results);
+                setTotalPages(res.data.total_pages);
+            },
+            err => {
+                console.log(err);
+            }
+        )
+    }, [curPage]);
 
     const nextPage = () => {
         if(curPage < totalPages) {

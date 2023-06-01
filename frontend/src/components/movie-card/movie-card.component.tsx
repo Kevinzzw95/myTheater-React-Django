@@ -3,10 +3,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { movieAddFav, movieRemoveFav, movieAddWathed, movieRemoveWatched, getFavList, getWatchedList } from "../../redux/user/userSlice";
 import Detail from "../movie-detail/detail";
 import url from "../../config/url";
-import { useEffect, useState } from "react";
 import { StarIcon, EyeIcon, HeartIcon } from "@heroicons/react/24/solid";
 import { selectCurrentToken } from "../../redux/auth/authSlice";
-import { useGetUserDataQuery, usePostUserDataMutation } from "../../redux/user/userApiSlice";
+import { usePostMovieMutation } from "../../redux/user/userApiSlice";
+import { useEffect, useState } from "react";
 
 type Props = {
     movie: movieCommon;
@@ -19,58 +19,39 @@ const MovieCard = ({ movie }: Props) => {
     const dispatch = useDispatch();
 
 	const token = useSelector(selectCurrentToken);
-	const [ postUserData, {isSuccess} ] = usePostUserDataMutation();
+	const [ postMovie, {isSuccess} ] = usePostMovieMutation();
 
-	const removeFav = (movie: movieCommon) => {
-		if(false) {
-			const newFav = fav.filter((f) => f.id !== movie.id);
-			postUserData({ fav: newFav, watched }).unwrap();
-			if(isSuccess) {
-				dispatch(movieRemoveFav(movie));
-			}
-		} else {
-			dispatch(movieRemoveFav(movie));
-		}
+	const removeFav = (movieId: number) => {
+		const newFav = fav.filter((f) => f !== movieId);
+		postMovie({ fav_list: newFav, watched_list: watched }).unwrap().then(
+			() => dispatch(movieRemoveFav(movieId)),
+			err => console.log(err)
+		);
+	}
+
+	const addFav = (movieId: number) => {
+		const newFav = [...fav, movieId];
+		postMovie({ fav_list: newFav, watched_list: watched }).unwrap().then(
+			() => dispatch(movieAddFav(movieId)),
+			err => console.log(err)
+		);
 		
 	}
 
-	const addFav = (movie: movieCommon) => {
-		if(false) {
-			const newFav = [...fav, movie];
-			postUserData({ fav: newFav, watched }).unwrap();
-			if(isSuccess) {
-				dispatch(movieAddFav(movie));
-			}
-		} else {
-			dispatch(movieAddFav(movie));
-		}
-		
+	const removeWatched = (movieId: number) => {
+		const newWatched = watched.filter((w) => w !== movieId);
+		postMovie({ fav_list: fav, watched_list: newWatched }).unwrap().then(
+			() => dispatch(movieRemoveWatched(movieId)),
+			err => console.log(err)
+		);
 	}
 
-	const removeWatched = (movie: movieCommon) => {
-		if(false) {
-			const newWatched = fav.filter((w) => w.id !== movie.id);
-			postUserData({ fav, watched: newWatched }).unwrap();
-			if(isSuccess) {
-				dispatch(movieRemoveWatched(movie));
-			}
-		} else {
-			dispatch(movieRemoveWatched(movie));
-		}
-		
-	}
-
-	const addWatched = (movie: movieCommon) => {
-		if(false) {
-			const newWatched = [...watched, movie];
-			postUserData({ fav, watched: newWatched }).unwrap();
-			if(isSuccess) {
-				dispatch(movieAddWathed(movie));
-			}
-		} else {
-			dispatch(movieAddWathed(movie));
-		}
-		
+	const addWatched = (movieId: number) => {
+		const newWatched = [...watched, movieId];
+		postMovie({ fav_list: fav, watched_list: newWatched }).unwrap().then(
+			() => dispatch(movieAddWathed(movieId)),
+			err => console.log(err)
+		);		
 	}
 
     return (
@@ -97,25 +78,39 @@ const MovieCard = ({ movie }: Props) => {
 				<div className="flex-1">
 					<h1 className="xl:text-lg">{ movie.release_date }</h1>
 				</div> 
-				{
-					watched.some(watchedMovie => watchedMovie.id === movie.id) ? 
-						<button className="flex-none mx-2" onClick={() => removeWatched(movie)}>
-							<EyeIcon fill="currentColor" className="w-6 h-6" color="hsl(var(--af))"/>
-						</button> 
-						:
-						<button className="flex-none mx-2" onClick={() => addWatched(movie)}>
+				{	
+					token ? 
+						watched.some(watchedMovie => watchedMovie === movie.id) ? 
+							<button className="flex-none mx-2" onClick={() => removeWatched(movie.id)}>
+								<EyeIcon fill="currentColor" className="w-6 h-6" color="hsl(var(--af))"/>
+							</button> 
+							:
+							<button className="flex-none mx-2" onClick={() => addWatched(movie.id)}>
+								<EyeIcon fill="currentColor" className="w-6 h-6"/>
+							</button>
+					:
+					<div className="tooltip" data-tip="login to add to favourite">
+						<button className="flex-none mx-2">
 							<EyeIcon fill="currentColor" className="w-6 h-6"/>
 						</button>
+					</div>
 				}
 				{
-					fav.some(favMovie => favMovie.id === movie.id) ?
-						<button className="flex-none" onClick={() => removeFav(movie)}>
-							<HeartIcon fill="currentColor" className="w-6 h-6" color="hsl(var(--af))"/>
-						</button> 
-						:
-						<button className="flex-none" onClick={() => addFav(movie)}>
+					token ?
+						fav.some(favMovie => favMovie === movie.id) ?
+							<button className="flex-none" onClick={() => removeFav(movie.id)}>
+								<HeartIcon fill="currentColor" className="w-6 h-6" color="hsl(var(--af))"/>
+							</button> 
+							:
+							<button className="flex-none" onClick={() => addFav(movie.id)}>
+								<HeartIcon fill="currentColor" className="w-6 h-6"/>
+							</button>
+					:
+					<div className="tooltip" data-tip="login to add to watched">
+						<button className="flex-none">
 							<HeartIcon fill="currentColor" className="w-6 h-6"/>
 						</button>
+					</div>
 				}				
           </div>
         </div>

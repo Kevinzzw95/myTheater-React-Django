@@ -1,17 +1,17 @@
-import { userSliceState } from "../../types/user";
+import { postMovie, userSliceState } from "../../types/user";
 import { apiSlice } from "../api/apiSlice";
 
 
 export const userApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
         getUserData: builder.query<userSliceState, void>({
-            query: () => '/user',
+            query: () => '/profile/',
         }),
-        postUserData: builder.mutation<void, userSliceState>({
-			query: movieLists => ({
-				url: '/user',
+        postMovie: builder.mutation<void, postMovie>({
+			query: updateInfo => ({
+				url: '/profile/',
 				method: 'POST',
-				body: {...movieLists}
+				body: {...updateInfo}
 			}) 
         })
     })
@@ -19,5 +19,5 @@ export const userApiSlice = apiSlice.injectEndpoints({
 
 export const {
     useGetUserDataQuery,
-    usePostUserDataMutation
+    usePostMovieMutation
 } = userApiSlice

@@ -3,41 +3,45 @@ import { RootState } from '../store/store';
 import { userSliceState } from '../../types/user';
 import { movieCommon } from '../../types/movie';
 
-var initialState: userSliceState = { fav: [], watched: [] };
+var initialState: userSliceState = { username: "", email: "", fav_list: [], watched_list: [] };
 
 const userSlice = createSlice({
     name: "user",
     initialState: initialState,
     reducers: {
-        setMovieList(state, action: PayloadAction<userSliceState>) {
-            const{ fav, watched } = action.payload;
-            state.fav = fav;
-            state.watched = watched;
+        setUserInfo(state, action: PayloadAction<userSliceState>) {
+            const{ username, email, fav_list, watched_list } = action.payload;
+            state.username = username;
+            state.email = email;
+            state.fav_list = fav_list;
+            state.watched_list = watched_list;
         },
-        movieAddFav(state, action: PayloadAction<movieCommon>) {
-            state.fav.push(action.payload);
+        movieAddFav(state, action: PayloadAction<number>) {
+            state.fav_list.push(action.payload);
         },
-        movieRemoveFav(state, action: PayloadAction<movieCommon>) {
-            const index = state.fav.findIndex((f) => f.id === action.payload.id);
+        movieRemoveFav(state, action: PayloadAction<number>) {
+            const index = state.fav_list.findIndex((f) => f === action.payload);
             if (index > -1) { // only splice array when item is found
-                state.fav.splice(index, 1); // 2nd parameter means remove one item only
+                state.fav_list.splice(index, 1); // 2nd parameter means remove one item only
             }
         },
-        movieAddWathed(state, action: PayloadAction<movieCommon>) {
-            state.watched.push(action.payload);
+        movieAddWathed(state, action: PayloadAction<number>) {
+            state.watched_list.push(action.payload);
         },
-        movieRemoveWatched(state, action: PayloadAction<movieCommon>) {
-            const index = state.watched.findIndex((w) => w.id === action.payload.id);;
+        movieRemoveWatched(state, action: PayloadAction<number>) {
+            const index = state.watched_list.findIndex((w) => w === action.payload);;
             if (index > -1) { // only splice array when item is found
-                state.watched.splice(index, 1); // 2nd parameter means remove one item only
+                state.watched_list.splice(index, 1); // 2nd parameter means remove one item only
             }
         }
     }
 });
 
-export const { setMovieList ,movieAddFav, movieRemoveFav, movieAddWathed, movieRemoveWatched } = userSlice.actions;
+export const { setUserInfo ,movieAddFav, movieRemoveFav, movieAddWathed, movieRemoveWatched } = userSlice.actions;
 
 export default userSlice.reducer;
 
-export const getFavList = (state: RootState) => state.user.fav;
-export const getWatchedList = (state: RootState) => state.user.watched;
+export const getUserName = (state: RootState) => state.user.username;
+export const getEmail = (state: RootState) => state.user.email;
+export const getFavList = (state: RootState) => state.user.fav_list;
+export const getWatchedList = (state: RootState) => state.user.watched_list;

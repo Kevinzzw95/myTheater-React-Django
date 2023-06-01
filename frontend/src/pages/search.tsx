@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { movieCommon, movieRes } from "../types/movie";
+import { movieCommon, movieGenreRes } from "../types/movie";
 import url from "../config/url";
 import MovieCard from "../components/movie-card/movie-card.component";
 
@@ -12,7 +12,7 @@ const Search = () => {
     const [ totalPages, setTotalPages ] = useState<number>(0);
     const [ curPage, setCurPage ] = useState<number>(1);
     useEffect(() => {
-        axios.get<movieRes>(url.base_url + url.search_url + params.keyword + `&page=${curPage}`)
+        axios.get<movieGenreRes>(url.base_url + url.search_url + params.keyword + `&page=${curPage}`)
             .then(
                 res => {
                     setMovieList(res.data.results)
